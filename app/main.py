@@ -1,8 +1,20 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+import pymupdf
+from typing import List
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+app.frontend("/",directory="frontend_route")
