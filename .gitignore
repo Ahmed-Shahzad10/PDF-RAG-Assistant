@@ -1,0 +1,12 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Secrets and API Keys
+.env
+config.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
