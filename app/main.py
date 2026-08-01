@@ -1,7 +1,4 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-import pymupdf
-from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 
 
