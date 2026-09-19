@@ -147,7 +147,7 @@ RAG/
 ├── .gitignore
 └── README.md
 
-```
+
 
 ---
 
@@ -194,12 +194,16 @@ When the user enters a search query (e.g., "What is the payment policy?"), the q
 Question → nomic-embed-text → Query Vector → FAISS → Top-K Similar Chunks
 The application returns the most semantically relevant document chunks.
 
+
+
 Full RAG Pipeline
 The /ask endpoint performs the complete RAG process.
 User Question → Query Embedding → FAISS Retrieval → Top-K Relevant Chunks → Context Assembly → Phi-3 → Generated Answer → Answer + Sources
 
 The LLM is instructed to answer only using the retrieved document context. If the answer is not present in the provided context, the model is instructed to respond:
 "I cannot answer this based on the provided documents."
+
+```
 
 ---
 
