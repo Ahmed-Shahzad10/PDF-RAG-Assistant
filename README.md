@@ -225,89 +225,136 @@ Advantages:
 --- 
 
 ## Installation
-1. Clone the repository
-Bash
-git clone https://github.com/Ahmed-Shahzad10/PDF-RAG-Assistant.git
-cd PDF-RAG-Assistant
-2. Create a virtual environment
-Windows
 
-Bash
+1. **Clone the repository**
+   ```bash
+   git clone [https://github.com/Ahmed-Shahzad10/PDF-RAG-Assistant.git](https://github.com/Ahmed-Shahzad10/PDF-RAG-Assistant.git)
+   cd PDF-RAG-Assistant
+
+```
+
+2. **Create a virtual environment**
+* **Windows:**
+```bash
 python -m venv venv
 venv\Scripts\activate
-Linux / macOS
 
-Bash
+```
+
+
+* **Linux / macOS:**
+```bash
 python3 -m venv venv
 source venv/bin/activate
-3. Install dependencies
-Bash
-pip install fastapi uvicorn python-multipart pymupdf numpy faiss-cpu ollama
-4. Install Ollama
-Install Ollama from https://ollama.com/.
-Then download the required models:
 
-Bash
+```
+
+
+
+
+3. **Install dependencies**
+```bash
+pip install fastapi uvicorn python-multipart pymupdf numpy faiss-cpu ollama
+
+```
+
+
+4. **Install Ollama**
+* Install Ollama from [https://ollama.com/](https://ollama.com/?utm_source=gemini).
+* Download the required models:
+```bash
 ollama pull nomic-embed-text
 ollama pull phi3
-Make sure Ollama is running:
 
-Bash
+```
+
+
+* Make sure Ollama is running in the background:
+```bash
 ollama serve
-Run the Application
-From the project root:
 
-Bash
+```
+
+
+
+
+
+---
+
+## Run the Application
+
+* **Start the server from the project root:**
+```bash
 uvicorn main:app --reload
-The application should be available at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-Open the URL in your browser.
 
-API Endpoints
-Upload PDF
-POST /uploads
-Uploads and processes a PDF document.
-(Upload → PDF extraction → Chunking → Embeddings → FAISS indexing)
+```
 
-Vector Search
-GET /search?query=your_question&limit=3
-Returns the most semantically similar chunks from the FAISS index.
 
-Full RAG Question Answering
-GET /ask?query=your_question&limit=3
-Runs the full pipeline (Embedding → FAISS retrieval → Context assembly → Phi-3 generation) and returns:
+* **Access the UI:** The application will be available at [http://127.0.0.1:8000](http://127.0.0.1:8000?utm_source=gemini)
+* Open the URL in your browser to start uploading PDFs.
 
-JSON
+---
+
+## API Endpoints
+
+* **Upload PDF** (`POST /uploads`)
+* Uploads and processes a PDF document.
+* *(Upload → PDF extraction → Chunking → Embeddings → FAISS indexing)*
+
+
+* **Vector Search** (`GET /search?query=your_question&limit=3`)
+* Returns the most semantically similar chunks from the FAISS index based on math/vector distance.
+
+
+* **Full RAG Question Answering** (`GET /ask?query=your_question&limit=3`)
+* Runs the full RAG pipeline *(Embedding → FAISS retrieval → Context assembly → Phi-3 generation)* and returns:
+```json
 {
     "question": "What is the payment policy?",
     "answer": "...",
     "sources": []
 }
-User Interface
+
+```
+
+---
+
+## User Interface
+
 The frontend provides three main operations:
 
-Upload Document: Upload and process a PDF.
+- Upload Document: Upload and process a PDF.
 
-Query Vector Knowledge Base: Search the FAISS index and inspect the retrieved chunks.
+- Query Vector Knowledge Base: Search the FAISS index and inspect the retrieved chunks.
 
-Ask the LLM: Run the complete RAG pipeline and receive an answer with source references.
+- Ask the LLM: Run the complete RAG pipeline and receive an answer with source references.
 
-Privacy
+---
+
+## Privacy:
+```text
 The project is designed around a local processing workflow. PDFs, embeddings, FAISS vectors, and LLM inference can remain on the local machine when using Ollama. No external LLM API is required for the current implementation.
+```
+---
 
-Current Limitations
+## Current Limitations:
+
 This is a functional RAG MVP and there are several areas that can be improved:
 
-Retrieval: Currently uses IndexFlatL2. No reranking stage. Retrieval quality depends heavily on chunk quality.
+- Retrieval: Currently uses IndexFlatL2. No reranking stage. Retrieval quality depends heavily on chunk quality.
 
-Chunking: Can be further optimized. Tables and complex PDF layouts may require specialized processing.
+- Chunking: Can be further optimized. Tables and complex PDF layouts may require specialized processing.
 
-LLM: Phi-3 is a lightweight local model. Larger models may provide better generation quality at the cost of additional memory and compute.
+- LLM: Phi-3 is a lightweight local model. Larger models may provide better generation quality at the cost of additional memory and compute.
 
-Storage: Metadata currently uses Pickle. No user/document management layer or database for application-level document records.
+- Storage: Metadata currently uses Pickle. No user/document management layer or database for application-level document records.
 
-Production: Authentication, rate limiting, and background task processing for large documents are not implemented.
+- Production: Authentication, rate limiting, and background task processing for large documents are not implemented.
 
-Project Goal
+---
+
+## Project Goal
+
 The primary goal of this project is to demonstrate how a complete Retrieval-Augmented Generation system can be built from scratch using locally hosted models.
 
 Instead of directly asking an LLM (Question → LLM → Answer), the application uses:
