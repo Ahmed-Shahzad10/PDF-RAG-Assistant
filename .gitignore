@@ -1,14 +1,14 @@
-# Virtual Environment
+# Ignore Python caches
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
 venv/
-.venv/
 env/
 
-# Secrets and API Keys
+# Ignore your data folders (You don't want to push PDFs or Vector DBs to GitHub)
+uploads/
+vector_store/
+
+# Ignore environment variables
 .env
-config.json
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-__pycache__/**/*
