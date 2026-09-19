@@ -26,6 +26,7 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
 
 ## Architecture
 
+```text
                          ┌─────────────────────┐
                          │     PDF Upload      │
                          └──────────┬──────────┘
