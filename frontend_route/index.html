@@ -6,17 +6,41 @@
     <title>RAG Project</title>
     <script src="script.js"></script>
     <link rel="stylesheet" href="beauty.css">
-
 </head>
 <body>
     <h1>Welcome to my RAG Project</h1>
-    <p>Please submit the files below (.pdf only).</p>
-    <form id="pdfForm">
-        <label for="filePath">Upload your file here:</label>
-        <input type="file" id="filePath" name="file_name"  required>
-        <button type="submit">Submit File</button>
-    </form>
-    <div id="response"></div>
     
+    <!-- Upload Section -->
+    <div class="card-section">
+        <p>Please submit the files below (.pdf only).</p>
+        <form id="pdfForm">
+            <label for="filePath">Upload your file here:</label>
+            <input type="file" id="filePath" name="file_name" required>
+            <button type="submit">Submit File</button>
+        </form>
+        <div id="response"></div>
+    </div>
+
+    <!-- Vector Search Section -->
+    <div class="card-section" style="margin-top: 30px; border-top: 2px solid #e5e7eb; padding-top: 20px;">
+        <h2>🔍 Query the Vector Knowledge Base</h2>
+        <p>Search through all indexed document chunks using mathematical similarity.</p>
+        <form id="searchForm" style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="queryText" placeholder="Ask something about your document..." required style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+            <button type="submit" style="white-space: nowrap;">Search Vectors</button>
+        </form>
+        <div id="searchResults"></div>
+    </div>
+
+    <!-- Full RAG Q&A Section -->
+    <div class="card-section" style="margin-top: 30px; border-top: 2px solid #e5e7eb; padding-top: 20px;">
+        <h2>🤖 Ask the LLM (Full RAG)</h2>
+        <p>Ask a question. The system will retrieve relevant vectors, build a context prompt, and generate an answer.</p>
+        <form id="ragForm" style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="ragQuestion" placeholder="E.g., What is the summary of chapter 2?" required style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+            <button type="submit" style="background-color: #10b981;">Generate Answer</button>
+        </form>
+        <div id="ragResult"></div>
+    </div>
 </body>
 </html>
