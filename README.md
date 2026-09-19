@@ -372,18 +372,18 @@ BS Computer Science
 
 Interested in:
 
-AI Engineering
+- AI Engineering
 
-Generative AI
+- Generative AI
 
-RAG Systems
+- RAG Systems
 
-Python Backend Development
+- Python Backend Development
 
-FastAPI
+- FastAPI
 
-Machine Learning
+- Machine Learning
 
-AI Automation
+- AI Automation
 
 ⭐ If you find this project useful, feel free to star the repository and explore the implementation!
