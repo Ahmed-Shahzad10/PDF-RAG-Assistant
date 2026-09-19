@@ -26,7 +26,6 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
 
 ## Architecture
 
-```text
                          ┌─────────────────────┐
                          │     PDF Upload      │
                          └──────────┬──────────┘
@@ -92,7 +91,7 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
                         │ Answer + Sources    │
                         └─────────────────────┘
 
-```text
+
 ---
 
 ## Tech Stack
@@ -148,7 +147,7 @@ RAG/
 ├── .gitignore
 └── README.md
 
-```text
+
 
 ---
 
