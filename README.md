@@ -1,4 +1,4 @@
-#  Local RAG PDF Question Answering System
+# Local RAG PDF Question Answering System
 
 A local **Retrieval-Augmented Generation (RAG)** application that allows users to upload PDF documents, extract and structurally chunk their content, generate embeddings, store them in a **FAISS vector database**, and ask natural language questions using a locally running **Phi-3 LLM through Ollama**.
 
@@ -6,7 +6,7 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
 
 ---
 
-##  Features
+## Features
 
 - Upload PDF documents
 - Extract text from PDFs
@@ -24,9 +24,8 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
 
 ---
 
-##  Architecture
+## Architecture
 
-```text
                          ┌─────────────────────┐
                          │     PDF Upload      │
                          └──────────┬──────────┘
@@ -91,30 +90,23 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
                         ┌─────────────────────┐
                         │ Answer + Sources    │
                         └─────────────────────┘
- 
+Tech Stack
+Backend: Python, FastAPI, Uvicorn
 
----
+Document Processing: PyMuPDF
 
-## Tech Stack:
+Embeddings: Ollama, nomic-embed-text (768-dimensional embeddings)
 
-- Backend: Python, FastAPI, Uvicorn
+Vector Database: FAISS (IndexFlatL2)
 
-- Document Processing: PyMuPDF
+Local LLM: Phi-3 (Served locally through Ollama)
 
-- Embeddings: Ollama, nomic-embed-text (768-dimensional embeddings)
+Frontend: HTML, CSS, JavaScript
 
-- Vector Database: FAISS (IndexFlatL2)
+Storage: FAISS binary index, Pickle metadata storage, Local PDF storage
 
-- Local LLM: Phi-3 (Served locally through Ollama)
-
-- Frontend: HTML, CSS, JavaScript
-
-- Storage: FAISS binary index, Pickle metadata storage, Local PDF storage
-
-## Project Structure:
-
---- 
-
+Project Structure
+Plaintext
 RAG/
 │
 ├── app/
@@ -147,17 +139,13 @@ RAG/
 │
 ├── .gitignore
 └── README.md
-
---- 
-
-## How It Works:
-
-1. PDF Upload:
+How It Works
+1. PDF Upload
 The user uploads a PDF through the web interface.
-The FastAPI /uploads endpoint:
+The FastAPI /uploads endpoint executes:
 PDF → Validation → Save locally → Extract text → Structural chunking → Generate embeddings → Store vectors in FAISS
 
-2. Document Chunking:
+2. Document Chunking
 The extracted document is divided into meaningful chunks rather than treating the entire PDF as one large block.
 Each chunk contains information such as:
 
@@ -168,12 +156,12 @@ JSON
 }
 This allows the retrieval system to preserve document structure and provide useful source information later.
 
-3. Embedding Generation:
+3. Embedding Generation
 Each chunk is converted into a numerical vector using nomic-embed-text through Ollama.
 Document Chunk → nomic-embed-text → 768-dimensional vector
 These vectors represent the semantic meaning of the document chunks.
 
-4. FAISS Vector Storage:
+4. FAISS Vector Storage
 The generated embeddings are stored using FAISS (faiss.IndexFlatL2). The project also stores metadata alongside the vectors.
 Example metadata:
 
@@ -188,48 +176,38 @@ JSON
 }
 The FAISS index and metadata are persisted locally. This means the vector database can be loaded again when the application starts.
 
- Semantic Search:
-
+5. Semantic Search
 When the user enters a search query (e.g., "What is the payment policy?"), the query is first converted into an embedding.
 Question → nomic-embed-text → Query Vector → FAISS → Top-K Similar Chunks
 The application returns the most semantically relevant document chunks.
 
----
-
-## Full RAG Pipeline:
-
+Full RAG Pipeline
 The /ask endpoint performs the complete RAG process.
 User Question → Query Embedding → FAISS Retrieval → Top-K Relevant Chunks → Context Assembly → Phi-3 → Generated Answer → Answer + Sources
 
 The LLM is instructed to answer only using the retrieved document context. If the answer is not present in the provided context, the model is instructed to respond:
 "I cannot answer this based on the provided documents."
 
----
-
-## Why Local Models?
-
+Why Local Models?
 This project uses Ollama instead of a cloud LLM API.
 
 Advantages:
 
-- No API key required
+No API key required
 
-- No per token API cost
+No per token API cost
 
-- Documents remain on the local machine
+Documents remain on the local machine
 
-- Can work without sending document content to an external LLM provider
+Can work without sending document content to an external LLM provider
 
-- Easy to swap models (e.g., LLMService(model="phi3") can be changed to another Ollama-supported model).
+Easy to swap models (e.g., LLMService(model="phi3") can be changed to another Ollama-supported model).
 
----
-
-## Installation:
-
+Installation
 1. Clone the repository
 Bash
-git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git](https://github.com/Ahmed-Shahzad10/PDF-RAG-Assistant.git)
-cd YOUR_REPOSITORY
+git clone https://github.com/Ahmed-Shahzad10/PDF-RAG-Assistant.git
+cd PDF-RAG-Assistant
 2. Create a virtual environment
 Windows
 
@@ -244,8 +222,7 @@ source venv/bin/activate
 3. Install dependencies
 Bash
 pip install fastapi uvicorn python-multipart pymupdf numpy faiss-cpu ollama
-
-Install Ollama
+4. Install Ollama
 Install Ollama from https://ollama.com/.
 Then download the required models:
 
@@ -256,16 +233,12 @@ Make sure Ollama is running:
 
 Bash
 ollama serve
- 
----
-
-## Run the Application
-
+Run the Application
 From the project root:
 
 Bash
-uvicorn app.main:app --reload
-The application should be available at: http://127.0.0.1:8000
+uvicorn main:app --reload
+The application should be available at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 Open the URL in your browser.
 
 API Endpoints
@@ -288,26 +261,19 @@ JSON
     "answer": "...",
     "sources": []
 }
-
---- 
-
-## User Interface
+User Interface
 The frontend provides three main operations:
 
-- Upload Document: Upload and process a PDF.
+Upload Document: Upload and process a PDF.
 
-- Query Vector Knowledge Base: Search the FAISS index and inspect the retrieved chunks.
+Query Vector Knowledge Base: Search the FAISS index and inspect the retrieved chunks.
 
-- Ask the LLM: Run the complete RAG pipeline and receive an answer with source references.
+Ask the LLM: Run the complete RAG pipeline and receive an answer with source references.
 
-Privacy:
-
+Privacy
 The project is designed around a local processing workflow. PDFs, embeddings, FAISS vectors, and LLM inference can remain on the local machine when using Ollama. No external LLM API is required for the current implementation.
 
----
-
-## Current Limitations:
-
+Current Limitations
 This is a functional RAG MVP and there are several areas that can be improved:
 
 Retrieval: Currently uses IndexFlatL2. No reranking stage. Retrieval quality depends heavily on chunk quality.
@@ -320,11 +286,7 @@ Storage: Metadata currently uses Pickle. No user/document management layer or da
 
 Production: Authentication, rate limiting, and background task processing for large documents are not implemented.
 
-
----
-
-## Project Goal:
-
+Project Goal
 The primary goal of this project is to demonstrate how a complete Retrieval-Augmented Generation system can be built from scratch using locally hosted models.
 
 Instead of directly asking an LLM (Question → LLM → Answer), the application uses:
@@ -332,11 +294,9 @@ Question → Embedding → Vector Search → Relevant Knowledge → Context → 
 
 This reduces the need to place the entire document inside the LLM prompt and allows the model to answer questions based on specific retrieved sections of the uploaded documents.
 
----
-
-## Author:
-
+Author
 Ahmed Shahzad
+
 BS Computer Science
 
 Interested in:
