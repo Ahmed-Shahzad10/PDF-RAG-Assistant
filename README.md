@@ -91,7 +91,11 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
                         ┌─────────────────────┐
                         │ Answer + Sources    │
                         └─────────────────────┘
-Tech Stack
+
+```text
+---
+
+## Tech Stack
 Backend: Python, FastAPI, Uvicorn
 
 Document Processing: PyMuPDF
@@ -106,7 +110,10 @@ Frontend: HTML, CSS, JavaScript
 
 Storage: FAISS binary index, Pickle metadata storage, Local PDF storage
 
-Project Structure
+---
+
+## Project Structure
+```text
 Plaintext
 RAG/
 │
@@ -140,7 +147,13 @@ RAG/
 │
 ├── .gitignore
 └── README.md
-How It Works
+
+```text
+
+---
+
+## How It Works
+
 1. PDF Upload
 The user uploads a PDF through the web interface.
 The FastAPI /uploads endpoint executes:
@@ -189,22 +202,26 @@ User Question → Query Embedding → FAISS Retrieval → Top-K Relevant Chunks 
 The LLM is instructed to answer only using the retrieved document context. If the answer is not present in the provided context, the model is instructed to respond:
 "I cannot answer this based on the provided documents."
 
-Why Local Models?
+---
+
+## Why Local Models?
 This project uses Ollama instead of a cloud LLM API.
 
 Advantages:
 
-No API key required
+- No API key required
 
-No per token API cost
+- No per token API cost
 
-Documents remain on the local machine
+- Documents remain on the local machine
 
-Can work without sending document content to an external LLM provider
+- Can work without sending document content to an external LLM provider
 
-Easy to swap models (e.g., LLMService(model="phi3") can be changed to another Ollama-supported model).
+- Easy to swap models (e.g., LLMService(model="phi3") can be changed to another Ollama-supported model).
 
-Installation
+--- 
+
+## Installation
 1. Clone the repository
 Bash
 git clone https://github.com/Ahmed-Shahzad10/PDF-RAG-Assistant.git
@@ -295,7 +312,9 @@ Question → Embedding → Vector Search → Relevant Knowledge → Context → 
 
 This reduces the need to place the entire document inside the LLM prompt and allows the model to answer questions based on specific retrieved sections of the uploaded documents.
 
-Author
+---
+
+## Author
 Ahmed Shahzad
 
 BS Computer Science
