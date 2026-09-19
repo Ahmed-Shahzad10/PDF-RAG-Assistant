@@ -148,11 +148,12 @@ RAG/
 └── README.md
 
 
+```
 
 ---
 
 ## How It Works
-
+```text
 1. PDF Upload
 The user uploads a PDF through the web interface.
 The FastAPI /uploads endpoint executes:
