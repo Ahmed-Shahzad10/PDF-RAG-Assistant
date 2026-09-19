@@ -1,17 +1,12 @@
-I apologize for the confusion! You are absolutely right, I don't need Google Drive for this. I can provide it right here.
+#  Local RAG PDF Question Answering System
 
-Here is your README.md content formatted perfectly in Markdown so you can easily copy and paste it into your repository:
-
-Markdown
-# 📚 Local RAG PDF Question Answering System
-
-A local **Retrieval-Augmented Generation (RAG)** application that allows users to upload PDF documents, extract and structurally chunk their content, generate embeddings, store them in a **FAISS vector database**, and ask natural-language questions using a locally running **Phi-3 LLM through Ollama**.
+A local **Retrieval-Augmented Generation (RAG)** application that allows users to upload PDF documents, extract and structurally chunk their content, generate embeddings, store them in a **FAISS vector database**, and ask natural language questions using a locally running **Phi-3 LLM through Ollama**.
 
 The project is designed to demonstrate a complete end-to-end RAG pipeline using Python and FastAPI without relying on paid LLM APIs.
 
 ---
 
-## ✨ Features
+##  Features
 
 - Upload PDF documents
 - Extract text from PDFs
@@ -29,7 +24,7 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ```text
                          ┌─────────────────────┐
@@ -61,58 +56,62 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
                          └─────────────────────┘
 
 
-User Question
-      │
-      ▼
-┌─────────────────────┐
-│ Query Embedding     │
-│ nomic-embed-text    │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│ FAISS Similarity    │
-│ Search              │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│ Top-K Relevant      │
-│ Document Chunks     │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│ Context Assembly    │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│ Phi-3 LLM           │
-│ via Ollama          │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│ Answer + Sources    │
-└─────────────────────┘
-🛠️ Tech Stack
-Backend: Python, FastAPI, Uvicorn
+                             User Question
+                                  │
+                                  ▼
+                        ┌─────────────────────┐
+                        │ Query Embedding     │
+                        │ nomic-embed-text    │
+                        └──────────┬──────────┘
+                                   │
+                                   ▼
+                        ┌─────────────────────┐
+                        │ FAISS Similarity    │
+                        │ Search              │
+                        └──────────┬──────────┘
+                                   │
+                                   ▼    
+                        ┌─────────────────────┐
+                        │ Top-K Relevant      │
+                        │ Document Chunks     │
+                        └──────────┬──────────┘
+                                   │
+                                   ▼ 
+                        ┌─────────────────────┐
+                        │ Context Assembly    │
+                        └──────────┬──────────┘
+                                   │
+                                   ▼
+                        ┌─────────────────────┐
+                        │ Phi-3 LLM           │
+                        │ via Ollama          │
+                        └──────────┬──────────┘
+                                   │
+                                   ▼
+                        ┌─────────────────────┐
+                        │ Answer + Sources    │
+                        └─────────────────────┘
+ 
+ 
+## Tech Stack:
 
-Document Processing: PyMuPDF
+- Backend: Python, FastAPI, Uvicorn
 
-Embeddings: Ollama, nomic-embed-text (768-dimensional embeddings)
+- Document Processing: PyMuPDF
 
-Vector Database: FAISS (IndexFlatL2)
+- Embeddings: Ollama, nomic-embed-text (768-dimensional embeddings)
 
-Local LLM: Phi-3 (Served locally through Ollama)
+- Vector Database: FAISS (IndexFlatL2)
 
-Frontend: HTML, CSS, JavaScript
+- Local LLM: Phi-3 (Served locally through Ollama)
 
-Storage: FAISS binary index, Pickle metadata storage, Local PDF storage
+- Frontend: HTML, CSS, JavaScript
 
-📁 Project Structure
-Plaintext
+- Storage: FAISS binary index, Pickle metadata storage, Local PDF storage
+
+## Project Structure:
+
+
 RAG/
 │
 ├── app/
@@ -145,13 +144,15 @@ RAG/
 │
 ├── .gitignore
 └── README.md
-⚙️ How It Works
-1. PDF Upload
+
+## How It Works:
+
+1. PDF Upload:
 The user uploads a PDF through the web interface.
 The FastAPI /uploads endpoint:
 PDF → Validation → Save locally → Extract text → Structural chunking → Generate embeddings → Store vectors in FAISS
 
-2. Document Chunking
+2. Document Chunking:
 The extracted document is divided into meaningful chunks rather than treating the entire PDF as one large block.
 Each chunk contains information such as:
 
@@ -162,12 +163,12 @@ JSON
 }
 This allows the retrieval system to preserve document structure and provide useful source information later.
 
-3. Embedding Generation
+3. Embedding Generation:
 Each chunk is converted into a numerical vector using nomic-embed-text through Ollama.
 Document Chunk → nomic-embed-text → 768-dimensional vector
 These vectors represent the semantic meaning of the document chunks.
 
-4. FAISS Vector Storage
+4. FAISS Vector Storage:
 The generated embeddings are stored using FAISS (faiss.IndexFlatL2). The project also stores metadata alongside the vectors.
 Example metadata:
 
@@ -182,26 +183,29 @@ JSON
 }
 The FAISS index and metadata are persisted locally. This means the vector database can be loaded again when the application starts.
 
-🔎 Semantic Search
+ Semantic Search:
+
 When the user enters a search query (e.g., "What is the payment policy?"), the query is first converted into an embedding.
 Question → nomic-embed-text → Query Vector → FAISS → Top-K Similar Chunks
 The application returns the most semantically relevant document chunks.
 
-🤖 Full RAG Pipeline
+ Full RAG Pipeline:
+
 The /ask endpoint performs the complete RAG process.
 User Question → Query Embedding → FAISS Retrieval → Top-K Relevant Chunks → Context Assembly → Phi-3 → Generated Answer → Answer + Sources
 
 The LLM is instructed to answer only using the retrieved document context. If the answer is not present in the provided context, the model is instructed to respond:
 "I cannot answer this based on the provided documents."
 
-🧠 Why Local Models?
+## Why Local Models?
+
 This project uses Ollama instead of a cloud LLM API.
 
 Advantages:
 
 No API key required
 
-No per-token API cost
+No per token API cost
 
 Documents remain on the local machine
 
@@ -209,7 +213,8 @@ Can work without sending document content to an external LLM provider
 
 Easy to swap models (e.g., LLMService(model="phi3") can be changed to another Ollama-supported model).
 
-📦 Installation
+## Installation:
+
 1. Clone the repository
 Bash
 git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git)
@@ -239,7 +244,9 @@ Make sure Ollama is running:
 
 Bash
 ollama serve
-▶️ Run the Application
+ 
+## Run the Application
+
 From the project root:
 
 Bash
@@ -267,7 +274,8 @@ JSON
     "answer": "...",
     "sources": []
 }
-🖥️ User Interface
+
+## User Interface
 The frontend provides three main operations:
 
 Upload Document: Upload and process a PDF.
@@ -276,10 +284,12 @@ Query Vector Knowledge Base: Search the FAISS index and inspect the retrieved ch
 
 Ask the LLM: Run the complete RAG pipeline and receive an answer with source references.
 
-🔒 Privacy
+ Privacy:
+
 The project is designed around a local processing workflow. PDFs, embeddings, FAISS vectors, and LLM inference can remain on the local machine when using Ollama. No external LLM API is required for the current implementation.
 
-⚠️ Current Limitations
+## Current Limitations:
+
 This is a functional RAG MVP and there are several areas that can be improved:
 
 Retrieval: Currently uses IndexFlatL2. No reranking stage. Retrieval quality depends heavily on chunk quality.
@@ -292,7 +302,8 @@ Storage: Metadata currently uses Pickle. No user/document management layer or da
 
 Production: Authentication, rate limiting, and background task processing for large documents are not implemented.
 
-🎯 Project Goal
+## Project Goal:
+
 The primary goal of this project is to demonstrate how a complete Retrieval-Augmented Generation system can be built from scratch using locally hosted models.
 
 Instead of directly asking an LLM (Question → LLM → Answer), the application uses:
@@ -300,7 +311,8 @@ Question → Embedding → Vector Search → Relevant Knowledge → Context → 
 
 This reduces the need to place the entire document inside the LLM prompt and allows the model to answer questions based on specific retrieved sections of the uploaded documents.
 
-👨‍💻 Author
+## Author:
+
 Ahmed Shahzad
 BS Computer Science
 
