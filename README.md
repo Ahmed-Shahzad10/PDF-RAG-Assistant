@@ -92,7 +92,9 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
                         │ Answer + Sources    │
                         └─────────────────────┘
  
- 
+
+---
+
 ## Tech Stack:
 
 - Backend: Python, FastAPI, Uvicorn
@@ -111,6 +113,7 @@ The project is designed to demonstrate a complete end-to-end RAG pipeline using 
 
 ## Project Structure:
 
+--- 
 
 RAG/
 │
@@ -144,6 +147,8 @@ RAG/
 │
 ├── .gitignore
 └── README.md
+
+--- 
 
 ## How It Works:
 
@@ -189,7 +194,9 @@ When the user enters a search query (e.g., "What is the payment policy?"), the q
 Question → nomic-embed-text → Query Vector → FAISS → Top-K Similar Chunks
 The application returns the most semantically relevant document chunks.
 
- Full RAG Pipeline:
+---
+
+## Full RAG Pipeline:
 
 The /ask endpoint performs the complete RAG process.
 User Question → Query Embedding → FAISS Retrieval → Top-K Relevant Chunks → Context Assembly → Phi-3 → Generated Answer → Answer + Sources
@@ -197,27 +204,31 @@ User Question → Query Embedding → FAISS Retrieval → Top-K Relevant Chunks 
 The LLM is instructed to answer only using the retrieved document context. If the answer is not present in the provided context, the model is instructed to respond:
 "I cannot answer this based on the provided documents."
 
+---
+
 ## Why Local Models?
 
 This project uses Ollama instead of a cloud LLM API.
 
 Advantages:
 
-No API key required
+- No API key required
 
-No per token API cost
+- No per token API cost
 
-Documents remain on the local machine
+- Documents remain on the local machine
 
-Can work without sending document content to an external LLM provider
+- Can work without sending document content to an external LLM provider
 
-Easy to swap models (e.g., LLMService(model="phi3") can be changed to another Ollama-supported model).
+- Easy to swap models (e.g., LLMService(model="phi3") can be changed to another Ollama-supported model).
+
+---
 
 ## Installation:
 
 1. Clone the repository
 Bash
-git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git)
+git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git](https://github.com/Ahmed-Shahzad10/PDF-RAG-Assistant.git)
 cd YOUR_REPOSITORY
 2. Create a virtual environment
 Windows
@@ -233,7 +244,8 @@ source venv/bin/activate
 3. Install dependencies
 Bash
 pip install fastapi uvicorn python-multipart pymupdf numpy faiss-cpu ollama
-🦙 Install Ollama
+
+Install Ollama
 Install Ollama from https://ollama.com/.
 Then download the required models:
 
@@ -245,6 +257,8 @@ Make sure Ollama is running:
 Bash
 ollama serve
  
+---
+
 ## Run the Application
 
 From the project root:
@@ -254,7 +268,7 @@ uvicorn app.main:app --reload
 The application should be available at: http://127.0.0.1:8000
 Open the URL in your browser.
 
-🔌 API Endpoints
+API Endpoints
 Upload PDF
 POST /uploads
 Uploads and processes a PDF document.
@@ -275,18 +289,22 @@ JSON
     "sources": []
 }
 
+--- 
+
 ## User Interface
 The frontend provides three main operations:
 
-Upload Document: Upload and process a PDF.
+- Upload Document: Upload and process a PDF.
 
-Query Vector Knowledge Base: Search the FAISS index and inspect the retrieved chunks.
+- Query Vector Knowledge Base: Search the FAISS index and inspect the retrieved chunks.
 
-Ask the LLM: Run the complete RAG pipeline and receive an answer with source references.
+- Ask the LLM: Run the complete RAG pipeline and receive an answer with source references.
 
- Privacy:
+Privacy:
 
 The project is designed around a local processing workflow. PDFs, embeddings, FAISS vectors, and LLM inference can remain on the local machine when using Ollama. No external LLM API is required for the current implementation.
+
+---
 
 ## Current Limitations:
 
@@ -302,6 +320,9 @@ Storage: Metadata currently uses Pickle. No user/document management layer or da
 
 Production: Authentication, rate limiting, and background task processing for large documents are not implemented.
 
+
+---
+
 ## Project Goal:
 
 The primary goal of this project is to demonstrate how a complete Retrieval-Augmented Generation system can be built from scratch using locally hosted models.
@@ -310,6 +331,8 @@ Instead of directly asking an LLM (Question → LLM → Answer), the application
 Question → Embedding → Vector Search → Relevant Knowledge → Context → LLM → Grounded Answer
 
 This reduces the need to place the entire document inside the LLM prompt and allows the model to answer questions based on specific retrieved sections of the uploaded documents.
+
+---
 
 ## Author:
 
