@@ -2,7 +2,7 @@ import pymupdf4llm
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 
 def run_advanced_structural_chunking(file_path: str, max_chars: int = 1000, overlap: int = 150):
-    """Phase 2: Markdown text -> Header Isolation -> Text Window Split -> Metadata"""
+    
     markdown_text = pymupdf4llm.to_markdown(file_path)
     
     headers_to_split_on = [

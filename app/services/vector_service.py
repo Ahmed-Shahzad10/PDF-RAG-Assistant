@@ -5,7 +5,7 @@ import pickle
 
 class VectorService:
     def __init__(self, index_dir: str = "vector_store", dimension: int = 768):
-        """Initializes the FAISS vector service layer using explicit file mappings."""
+        #Initializes the FAISS vector service layer using explicit file mappings.
         self.index_dir = index_dir
         self.dimension = dimension
         self.index_path = os.path.join(self.index_dir, "faiss_index.bin")
@@ -18,7 +18,7 @@ class VectorService:
         self.load_index()
 
     def add_vectors(self, chunks: list, document_id: str, filename: str):
-        """Appends multiple processed text chunk matrices into index arrays safely."""
+        # Appends multiple processed text chunk matrices into index arrays safely.
         if not chunks:
             return
 
@@ -42,13 +42,13 @@ class VectorService:
         self.save_index()
 
     def save_index(self):
-        """Persists the updated index and tracking metadata binaries safely onto disk."""
+        # Persists the updated index and tracking metadata binaries safely onto disk.
         faiss.write_index(self.index, self.index_path)
         with open(self.metadata_path, "wb") as f:
             pickle.dump(self.metadata, f)
 
     def load_index(self):
-        """Reads file pointers once from disk into your application environment cache block."""
+        # Reads file pointers once from disk into your application environment cache block.
         if os.path.exists(self.index_path) and os.path.exists(self.metadata_path):
             self.index = faiss.read_index(self.index_path)
             with open(self.metadata_path, "rb") as f:
@@ -58,7 +58,7 @@ class VectorService:
             self.metadata = []
 
     def search(self, query_vector: list, top_k: int = 3) -> list:
-        """Executes raw mathematical vector queries directly against the active index space."""
+  
         if not self.index or self.index.ntotal == 0:
             return []
 

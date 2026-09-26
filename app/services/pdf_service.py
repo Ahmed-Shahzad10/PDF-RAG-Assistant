@@ -8,7 +8,7 @@ CHUNK_SIZE = 64 * 1024            # 64 KB blocks
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 async def save_pdf_file(file_name: UploadFile) -> str:
-    """Saves the uploaded streaming file blocks to disk."""
+    #Saves the uploaded streaming file blocks to disk.
     import uuid
     _, file_extension = os.path.splitext(file_name.filename)
     unique_filename = f"{uuid.uuid4()}{file_extension}"

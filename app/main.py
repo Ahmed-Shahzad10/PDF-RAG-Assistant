@@ -12,7 +12,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register the split upload routes path loop
+
 app.include_router(upload_router)
 
 app.mount("/", StaticFiles(directory="frontend_route", html=True), name="frontend")

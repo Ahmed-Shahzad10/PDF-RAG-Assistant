@@ -1,170 +1,182 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const uploadForm = document.getElementById('pdfForm');
-    const searchForm = document.getElementById('searchForm');
-    const responseDiv = document.getElementById('response');
-    const searchResultsDiv = document.getElementById('searchResults');
+    const chatForm = document.getElementById('chatForm');
+    const chatHistory = document.getElementById('chat-history');
+    const fileInput = document.getElementById('fileInput');
+    const textInput = document.getElementById('textInput');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const uploadBtn = document.getElementById('upload-btn');
 
-    // Helper function to safely escape raw text to prevent XSS
+    let conversationState = 'AWAITING_FILE'; 
+
     const escapeHtml = (str) => {
         if (!str) return '';
-        return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     };
 
-    // --- Phase 1: Document Upload & Processing ---
-    uploadForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const formData = new FormData(uploadForm);
-        
-        try {
-            // Provide UI loading feedback
-            responseDiv.innerHTML = `<p style="color: #2563eb; font-weight: 600;">Uploading and processing document through RAG pipeline...</p>`;
-            
-            const response = await fetch('/uploads', {
-                method: 'POST',
-                body: formData 
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ detail: "Unknown server error occurred." }));
-                throw new Error(errorData.detail || `HTTP Error ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // Map the processed chunks into HTML cards
-            const chunksHtml = data.chunks.map((chunk, index) => `
-                <div class="chunk-card" style="border-left-color: #8b5cf6;">
-                    <div class="chunk-meta">
-                        <span>CHUNK ID: ${index + 1} | 📂 SECTION: "${escapeHtml(chunk.section)}"</span>
-                        <span class="badge" style="background: #e0e7ff; color: #4338ca;">🧬 Embed Dimensions: ${chunk.embedding_dimensions}</span>
-                    </div>
-                    <pre style="margin: 0; font-family: ui-monospace, monospace; font-size: 0.85em; white-space: pre-wrap; word-wrap: break-word; color: #111827; background: #f9fafb; padding: 8px; border-radius: 4px;">${escapeHtml(chunk.text)}</pre>
-                </div>
-            `).join('');
-            
-            // Render the final success UI
-            responseDiv.innerHTML = `
-                <div style="border-top: 2px solid #d1d5db; margin-top: 25px; padding-top: 15px;">
-                    <p style="color: #10b981; font-weight: bold; font-size: 1.1em; margin-bottom: 4px;">✔ Extraction & Chunking Complete</p>
-                    <p style="margin: 0 0 15px 0; color: #4b5563;">File: <strong>${escapeHtml(data.filename)}</strong> | FAISS Indexed Chunks: <strong style="color: #111827;">${data.chunks_count}</strong></p>
-                    <div class="results-container">
-                        ${chunksHtml}
-                    </div>
-                </div>
-            `;
-            
-            // Reset the form so a new file can be uploaded cleanly
-            uploadForm.reset();
-            
-        } catch (error) {
-            responseDiv.innerHTML = `<p style="color: #dc2626; font-weight: bold;">Error: ${escapeHtml(error.message)}</p>`;
+
+    const hideWelcomeScreen = () => {
+        if (welcomeScreen) welcomeScreen.style.display = 'none';
+    };
+
+    const addUserMessage = (text) => {
+        hideWelcomeScreen();
+        const msgHtml = `<div class="message user-message"><div class="message-content">${escapeHtml(text)}</div></div>`;
+        chatHistory.insertAdjacentHTML('beforeend', msgHtml);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    };
+
+    const addBotMessage = (htmlContent) => {
+        hideWelcomeScreen();
+        const msgHtml = `<div class="message bot-message"><div class="message-content">${htmlContent}</div></div>`;
+        chatHistory.insertAdjacentHTML('beforeend', msgHtml);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    };
+
+    const setInputMode = (mode) => {
+        if (mode === 'text') {
+            textInput.disabled = false;
+            textInput.placeholder = "How can I help you today?";
+            uploadBtn.style.opacity = '0.5';
+            uploadBtn.style.pointerEvents = 'none';
+            textInput.focus();
+        } else {
+            textInput.disabled = true;
+            textInput.placeholder = "Upload a PDF using the + button...";
+            uploadBtn.style.opacity = '1';
+            uploadBtn.style.pointerEvents = 'auto';
+        }
+    };
+
+ 
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0 && conversationState === 'AWAITING_FILE') {
+            chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
         }
     });
 
-    // --- Phase 2: FAISS Vector Knowledge Base Search ---
-    searchForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const queryInput = document.getElementById('queryText').value;
-        
-        try {
-            // Provide UI loading feedback
-            searchResultsDiv.innerHTML = `<p style="color: #2563eb; font-weight: 600;">Vectorizing query and exploring FAISS index space...</p>`;
+    chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // STATE 1: UPLOADING FILE
+        if (conversationState === 'AWAITING_FILE') {
+            if (fileInput.files.length === 0) return;
             
-            const targetUrl = `/search?query=${encodeURIComponent(queryInput)}&limit=3`;
-            const response = await fetch(targetUrl, { method: 'GET' });
+            const formData = new FormData();
+            formData.append('file_name', fileInput.files[0]);
             
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ detail: "Search pipeline exception encountered." }));
-                throw new Error(errorData.detail || `HTTP Search Error ${response.status}`);
-            }
-            
-            const searchData = await response.json();
-            
-            // Handle empty search results gracefully
-            if (!searchData.results || searchData.results.length === 0) {
-                searchResultsDiv.innerHTML = `<p style="color: #ea580c; font-weight: bold;">No matching documentation contexts found in the vector index. Try uploading a file first.</p>`;
-                return;
-            }
-            
-            // Map the search results into HTML cards
-            const resultsHtml = searchData.results.map((result, index) => `
-                <div class="chunk-card">
-                    <div class="chunk-meta">
-                        <span>MATCH POSITION: #${index + 1} | 📂 SECTION: "${escapeHtml(result.section)}"</span>
-                        <span class="badge">📐 FAISS L2 Distance: ${result.distance.toFixed(4)}</span>
+            addUserMessage(`📄 ${fileInput.files[0].name}`);
+            addBotMessage(`<p style="color: #888;">Processing document...</p>`);
+
+            try {
+                const response = await fetch('/uploads', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error("Upload failed.");
+                const data = await response.json();
+
+                const chunksHtml = data.chunks.map((c, i) => `
+                    <div class="chunk-card">
+                        <div class="chunk-meta"><span>Chunk ${i + 1} | ${escapeHtml(c.section)}</span></div>
+                        <pre style="margin: 0; font-family: monospace; color: #AAA; white-space: pre-wrap;">${escapeHtml(c.text)}</pre>
                     </div>
-                    <p style="margin-top: 0; margin-bottom: 8px; font-size: 0.8em; color: #6b7280;">📄 Source File: <strong>${escapeHtml(result.filename)}</strong></p>
-                    <p style="margin: 0; font-size: 0.9em; color: #1f2937; line-height: 1.5; white-space: pre-wrap;">${escapeHtml(result.text)}</p>
-                </div>
-            `).join('');
+                `).join('');
+
+                addBotMessage(`
+                    <p style="color: #DDD; font-weight: 500;">Extracted ${data.chunks_count} chunks.</p>
+                    <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;">${chunksHtml}</div>
+                    <p style="margin-top: 15px;">Do you want to query the Vector Knowledge Base directly before talking to the LLM? (Yes/No)</p>
+                `);
+
+                conversationState = 'AWAITING_VECTOR_DECISION';
+                setInputMode('text');
+
+            } catch (err) {
+                addBotMessage(`<p style="color: #ff6b6b;">Error: ${err.message}</p>`);
+            }
+        }
+
+        // STATE 2: DECIDING TO USE VECTOR SEARCH OR NOT
+        else if (conversationState === 'AWAITING_VECTOR_DECISION') {
+            const input = textInput.value.trim().toLowerCase();
+            if (!input) return;
             
-            // Render the final search UI
-            searchResultsDiv.innerHTML = `
-                <div style="margin-top: 10px;">
-                    <p style="margin: 0 0 12px 0; color: #374151; font-size: 0.95em;">Top vector matches for: <em>"${escapeHtml(searchData.query)}"</em></p>
-                    <div class="results-container">
-                        ${resultsHtml}
-                    </div>
-                </div>
-            `;
+            addUserMessage(textInput.value);
+            textInput.value = '';
+
+            if (input === 'yes' || input === 'y') {
+                addBotMessage("<p>What exactly would you like to search for in the vectors?</p>");
+                conversationState = 'AWAITING_VECTOR_QUERY';
+            } else {
+                addBotMessage("<p>Skipped vector search. What question would you like to ask the LLM?</p>");
+                conversationState = 'AWAITING_LLM_QUESTION';
+            }
+        }
+
+        // STATE 3: PERFORMING VECTOR SEARCH
+        else if (conversationState === 'AWAITING_VECTOR_QUERY') {
+            const query = textInput.value.trim();
+            if (!query) return;
+
+            addUserMessage(query);
+            textInput.value = '';
             
-        } catch (error) {
-            searchResultsDiv.innerHTML = `<p style="color: #dc2626; font-weight: bold;">Search Error: ${escapeHtml(error.message)}</p>`;
+            addBotMessage(`<p style="color: #888;">Searching FAISS index...</p>`);
+
+            try {
+                const response = await fetch(`/search?query=${encodeURIComponent(query)}&limit=3`);
+                if (!response.ok) throw new Error("Search failed.");
+                const data = await response.json();
+
+                if (data.results.length === 0) {
+                    addBotMessage("<p>No matches found in the index. What question do you have for the LLM?</p>");
+                } else {
+                    const resultsHtml = data.results.map((r, i) => `
+                        <div class="chunk-card">
+                            <div class="chunk-meta"><span>Match ${i + 1} | L2: ${r.distance.toFixed(4)}</span></div>
+                            <p style="margin: 0; color: #CCC;">${escapeHtml(r.text)}</p>
+                        </div>
+                    `).join('');
+                    
+                    addBotMessage(`
+                        <p>Here are the top matches:</p>
+                        <div style="max-height: 250px; overflow-y: auto;">${resultsHtml}</div>
+                        <p style="margin-top: 15px;">Now, what question would you like to ask the LLM?</p>
+                    `);
+                }
+                
+                conversationState = 'AWAITING_LLM_QUESTION';
+
+            } catch (err) {
+                addBotMessage(`<p style="color: #ff6b6b;">Error: ${err.message}</p>`);
+                conversationState = 'AWAITING_LLM_QUESTION';
+            }
+        }
+
+        // STATE 4: FULL RAG LLM QUERY ( In LOOPS)
+        else if (conversationState === 'AWAITING_LLM_QUESTION') {
+            const query = textInput.value.trim();
+            if (!query) return;
+
+            addUserMessage(query);
+            textInput.value = '';
+
+            addBotMessage(`<p style="color: #888;">Generating AI response...</p>`);
+
+            try {
+                const response = await fetch(`/ask?query=${encodeURIComponent(query)}&limit=3`);
+                if (!response.ok) throw new Error("RAG generation failed.");
+                const data = await response.json();
+
+                const sourcesHtml = data.sources.map((s, i) => `<li style="margin-bottom: 4px;">[${i + 1}] ${escapeHtml(s.filename)} - ${escapeHtml(s.section)}</li>`).join('');
+
+                addBotMessage(`
+                    <p style="white-space: pre-wrap; color: #FFF;">${escapeHtml(data.answer)}</p>
+                    ${data.sources.length > 0 ? `<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #333;"><p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Sources used:</p><ul style="padding-left:15px; margin:0; font-size: 0.8rem; color: #888;">${sourcesHtml}</ul></div>` : ''}
+                `);
+                
+            } catch (err) {
+                addBotMessage(`<p style="color: #ff6b6b;">Error: ${err.message}</p>`);
+            }
         }
     });
 
-    // --- Full RAG Pipeline Execution ---
-  const ragForm = document.getElementById('ragForm');
-  const ragResultDiv = document.getElementById('ragResult');
-
-  if (ragForm) {
-      ragForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const questionInput = document.getElementById('ragQuestion').value;
-        
-        try {
-          ragResultDiv.innerHTML = `<p style="color: #10b981; font-weight: 600;">Searching vectors and generating LLM response...</p>`;
-          
-          const targetUrl = `/ask?query=${encodeURIComponent(questionInput)}&limit=3`;
-          const response = await fetch(targetUrl, { method: 'GET' });
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ detail: "RAG pipeline failed." }));
-            throw new Error(errorData.detail || `HTTP Error ${response.status}`);
-          }
-          
-          const data = await response.json();
-          
-          const sourcesHtml = data.sources.map((src, idx) => `
-              <li style="margin-bottom: 4px; font-size: 0.85em; color: #4b5563;">
-                  <strong>[${idx + 1}]</strong> ${escapeHtml(src.filename)} 
-                  <span style="color: #9ca3af;">(${escapeHtml(src.section)})</span>
-              </li>
-          `).join('');
-
-          ragResultDiv.innerHTML = `
-            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin-top: 12px;">
-              <h3 style="margin-top: 0; color: #0f172a; font-size: 1.1em;">Answer:</h3>
-              <p style="color: #1e293b; font-size: 1em; line-height: 1.6; white-space: pre-wrap;">${escapeHtml(data.answer)}</p>
-              
-              ${data.sources.length > 0 ? `
-              <div style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-                  <h4 style="margin: 0 0 8px 0; color: #64748b; font-size: 0.9em; text-transform: uppercase;">Sources Used:</h4>
-                  <ul style="margin: 0; padding-left: 20px; list-style-type: none;">
-                      ${sourcesHtml}
-                  </ul>
-              </div>` : ''}
-            </div>
-          `;
-          
-        } catch (error) {
-          ragResultDiv.innerHTML = `<p style="color: #dc2626; font-weight: bold;">Generation Error: ${escapeHtml(error.message)}</p>`;
-        }
-      });
-  }
+    setInputMode('file');
 });

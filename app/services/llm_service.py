@@ -2,12 +2,11 @@ import ollama
 
 class LLMService:
     def __init__(self, model: str = "phi3"):
-        # You can swap this to "mistral", "phi3", etc., depending on what you pulled in Ollama
+       
         self.model = model
         self.client = ollama.AsyncClient()
 
     async def generate_rag_response(self, context: str, question: str) -> str:
-        """Phase 7: Injects context and question into a strict system prompt."""
         
         prompt = (
             "You are a helpful assistant analyzing document excerpts.\n"

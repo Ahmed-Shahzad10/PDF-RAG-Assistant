@@ -3,44 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG Project</title>
-    <script src="script.js"></script>
+    <title>RAG Assistant</title>
+    <script src="script.js" defer></script>
     <link rel="stylesheet" href="beauty.css">
 </head>
 <body>
-    <h1>Welcome to my RAG Project</h1>
-    
-    <!-- Upload Section -->
-    <div class="card-section">
-        <p>Please submit the files below (.pdf only).</p>
-        <form id="pdfForm">
-            <label for="filePath">Upload your file here:</label>
-            <input type="file" id="filePath" name="file_name" required>
-            <button type="submit">Submit File</button>
-        </form>
-        <div id="response"></div>
-    </div>
+    <div id="app-container">
+      
+        <div id="chat-history">
+           
+            <div id="welcome-screen">
+                <div class="logo">⚡</div>
+                <h1>Good Morning, Ahmed</h1>
+                <p style="color: #888; font-size: 0.95rem; margin-top: 5px;">Upload a PDF to get started.</p>
+            </div>
+        </div>
 
-    <!-- Vector Search Section -->
-    <div class="card-section" style="margin-top: 30px; border-top: 2px solid #e5e7eb; padding-top: 20px;">
-        <h2>🔍 Query the Vector Knowledge Base</h2>
-        <p>Search through all indexed document chunks using mathematical similarity.</p>
-        <form id="searchForm" style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="queryText" placeholder="Ask something about your document..." required style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-            <button type="submit" style="white-space: nowrap;">Search Vectors</button>
-        </form>
-        <div id="searchResults"></div>
-    </div>
 
-    <!-- Full RAG Q&A Section -->
-    <div class="card-section" style="margin-top: 30px; border-top: 2px solid #e5e7eb; padding-top: 20px;">
-        <h2>🤖 Ask the LLM (Full RAG)</h2>
-        <p>Ask a question. The system will retrieve relevant vectors, build a context prompt, and generate an answer.</p>
-        <form id="ragForm" style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="ragQuestion" placeholder="E.g., What is the summary of chapter 2?" required style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-            <button type="submit" style="background-color: #10b981;">Generate Answer</button>
-        </form>
-        <div id="ragResult"></div>
+        <div id="input-container">
+            <form id="chatForm">
+                
+                <label for="fileInput" id="upload-btn">+</label>
+                <input type="file" id="fileInput" name="file_name" accept=".pdf" style="display: none;">
+                
+                <input type="text" id="textInput" placeholder="How can I help you today?" autocomplete="off" disabled>
+                
+                <button type="submit" id="sendBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

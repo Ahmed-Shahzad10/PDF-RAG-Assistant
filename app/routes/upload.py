@@ -8,7 +8,7 @@ from app.services.llm_service import LLMService
 
 router = APIRouter()
 
-# --- Single Persistent Service Allocations (Loads from disk once on boot) ---
+# --- Single Persistent Service Allocations (It Loads from disk once on boot) ---
 embedding_service = EmbeddingService()
 vector_store = VectorService(dimension=768)
 llm_service = LLMService(model="phi3")
